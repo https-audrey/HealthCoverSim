@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 
 const HOSPITAL_OPTIONS = ["None", "Basic", "Bronze", "Silver", "Gold"];
 const EXTRAS_OPTIONS = ["None", "Basic", "Standard", "Premium"];
@@ -79,9 +79,28 @@ export default function QuoteFormFields({ initialValues, onSubmit, submitLabel =
   const [form, setForm] = useState({ ...emptyForm, ...initialValues });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const formRef = useRef(null);
 
   const needsApplicant2 = form.cover_type === "Couple" || form.cover_type === "Family";
   const isYearly = form.payment_frequency === "Yearly";
+
+  /** Scroll to the first visible error element inside the form */
+  const scrollToFirstError = useCallback(() => {
+    // Use a short timeout so React has time to render the error classes / error-box
+    setTimeout(() => {
+      if (!formRef.current) return;
+      const firstError =
+        formRef.current.querySelector(".error-box") ||
+        formRef.current.querySelector(".input-error");
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+        // If it's a focusable input/select, also focus it for accessibility
+        if (typeof firstError.focus === "function" && firstError.tagName !== "DIV") {
+          firstError.focus({ preventScroll: true });
+        }
+      }
+    }, 50);
+  }, []);
 
   function update(field, value) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -99,7 +118,10 @@ export default function QuoteFormFields({ initialValues, onSubmit, submitLabel =
     e.preventDefault();
     const clientErrors = validate(form);
     setErrors(clientErrors);
-    if (Object.keys(clientErrors).length > 0) return;
+    if (Object.keys(clientErrors).length > 0) {
+      scrollToFirstError();
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -107,13 +129,14 @@ export default function QuoteFormFields({ initialValues, onSubmit, submitLabel =
     } catch (err) {
       // Backend validation failure (defence in depth) – show as a general error
       setErrors({ _general: err.details && err.details.length ? err.details.join(" ") : err.message });
+      scrollToFirstError();
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <form className="quote-form" onSubmit={handleSubmit} noValidate>
+    <form className="quote-form" onSubmit={handleSubmit} ref={formRef} noValidate>
       {errors._general && (
         <div className="error-box">
           <strong>{errors._general}</strong>
