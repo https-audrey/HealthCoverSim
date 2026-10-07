@@ -291,7 +291,7 @@ button.danger:hover {
   align-items: flex-start;
 }
 
-.quote-form-layout > .quote-form {
+.quote-form-layout>.quote-form {
   flex: 1;
   min-width: 0;
 }
@@ -349,12 +349,12 @@ button.danger:hover {
   gap: 0.5rem;
 }
 
-.cost-item > span:first-child {
+.cost-item>span:first-child {
   flex: 1;
   min-width: 0;
 }
 
-.cost-item > span:last-child {
+.cost-item>span:last-child {
   font-weight: 600;
   white-space: nowrap;
 }
