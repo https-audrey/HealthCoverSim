@@ -33,7 +33,7 @@ body {
 }
 
 main {
-  max-width: 860px;
+  max-width: 1100px;
   margin: 1.5rem auto;
   padding: 0 1rem 3rem;
 }
@@ -282,4 +282,148 @@ button.danger:hover {
 .quote-form .cover-card.selected .cover-card-price {
   color: #0f4c81;
   font-weight: 600;
+}
+
+/* ── Two-column form + estimate layout ───────────────────────── */
+.quote-form-layout {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.quote-form-layout > .quote-form {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Cost Estimate sidebar ───────────────────────────────────── */
+.cost-estimate {
+  position: sticky;
+  top: 80px;
+  width: 300px;
+  flex-shrink: 0;
+  background: white;
+  border: 1px solid #dde3e8;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s;
+}
+
+.cost-estimate:hover {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+}
+
+.cost-estimate-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f4c81;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e8f0f8;
+}
+
+.cost-estimate-empty {
+  color: #777;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.cost-estimate-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.cost-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.85rem;
+  color: #333;
+  gap: 0.5rem;
+}
+
+.cost-item > span:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.cost-item > span:last-child {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cost-item-note {
+  color: #888;
+  font-size: 0.8rem;
+  font-style: italic;
+  padding-left: 0.25rem;
+}
+
+.cost-estimate-totals {
+  border-top: 1px solid #e2e6ea;
+  padding-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.cost-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.cost-total-amount {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #0f4c81;
+}
+
+.cost-total-sub {
+  font-size: 0.82rem;
+  color: #666;
+}
+
+.cost-total-sub span:last-child {
+  font-weight: 500;
+}
+
+.cost-total-highlight {
+  background: linear-gradient(135deg, #e8f0f8, #dbeaf5);
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  margin-top: 0.25rem;
+}
+
+.cost-total-highlight .cost-total-amount {
+  font-size: 1.15rem;
+}
+
+.cost-estimate-disclaimer {
+  margin: 0.75rem 0 0;
+  font-size: 0.75rem;
+  color: #999;
+  text-align: center;
+}
+
+/* ── Responsive: stack on narrow screens ──────────────────────── */
+@media (max-width: 768px) {
+  .quote-form-layout {
+    flex-direction: column;
+  }
+
+  .cost-estimate {
+    position: static;
+    width: 100%;
+    order: -1;
+  }
 }
