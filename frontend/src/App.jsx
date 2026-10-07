@@ -11,7 +11,6 @@ export default function App() {
         <Link to="/" className="brand">
           HealthCoverSim
         </Link>
-        <p className="tagline">Private Health Insurance Quote Simulator (learning demo only)</p>
       </header>
 
       <main>

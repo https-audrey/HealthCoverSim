@@ -4,6 +4,14 @@ const HOSPITAL_OPTIONS = ["None", "Basic", "Bronze", "Silver", "Gold"];
 const EXTRAS_OPTIONS = ["None", "Basic", "Standard", "Premium"];
 const HISTORY_OPTIONS = ["Yes", "No", "Not sure"];
 
+// Per-person monthly base prices – must stay in sync with backend/calculations.js
+const HOSPITAL_PRICES = { None: 0, Basic: 90, Bronze: 120, Silver: 160, Gold: 220 };
+const EXTRAS_PRICES = { None: 0, Basic: 25, Standard: 45, Premium: 70 };
+
+function formatPrice(amount) {
+  return amount === 0 ? "Free" : `$${amount}/mo`;
+}
+
 const emptyForm = {
   customer_name: "",
   cover_type: "Single",
@@ -22,43 +30,54 @@ const emptyForm = {
  * Client-side validation. Mirrors backend/calculations.js validateQuoteInput
  * so users get instant feedback, but the backend re-validates independently -
  * the frontend check is a convenience, not the source of truth.
+ *
+ * Returns a keyed object where each key is a field name and the value is
+ * the error message string. An empty object means no errors.
  */
 function validate(form) {
-  const errors = [];
-  if (!form.customer_name.trim()) errors.push("Customer name is required.");
+  const errors = {};
+  if (!form.customer_name.trim()) {
+    errors.customer_name = "Customer name is required.";
+  }
 
   const age1 = Number(form.applicant1_age);
   if (!form.applicant1_age || Number.isNaN(age1) || age1 < 18 || age1 > 100) {
-    errors.push("Applicant 1 age must be between 18 and 100.");
+    errors.applicant1_age = "Age must be between 18 and 100.";
   }
   if (!form.applicant1_cover_history) {
-    errors.push("Applicant 1 hospital cover history is required.");
+    errors.applicant1_cover_history = "Hospital cover history is required.";
   }
 
   const needsApplicant2 = form.cover_type === "Couple" || form.cover_type === "Family";
   if (needsApplicant2) {
     const age2 = Number(form.applicant2_age);
     if (!form.applicant2_age || Number.isNaN(age2) || age2 < 18 || age2 > 100) {
-      errors.push("Applicant 2 age must be between 18 and 100.");
+      errors.applicant2_age = "Age must be between 18 and 100.";
     }
     if (!form.applicant2_cover_history) {
-      errors.push("Applicant 2 hospital cover history is required.");
+      errors.applicant2_cover_history = "Hospital cover history is required.";
     }
   }
 
   if (form.payment_frequency === "Yearly") {
     const d = Number(form.annual_discount);
     if (form.annual_discount === "" || Number.isNaN(d) || d < 0 || d > 10) {
-      errors.push("Annual discount must be between 0 and 10 (%) for yearly payment.");
+      errors.annual_discount = "Discount must be between 0 and 10%.";
     }
   }
 
   return errors;
 }
 
+/** Small inline error message shown below a field */
+function FieldError({ message }) {
+  if (!message) return null;
+  return <span className="field-error">{message}</span>;
+}
+
 export default function QuoteFormFields({ initialValues, onSubmit, submitLabel = "Save Quote" }) {
   const [form, setForm] = useState({ ...emptyForm, ...initialValues });
-  const [errors, setErrors] = useState([]);
+  const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
   const needsApplicant2 = form.cover_type === "Couple" || form.cover_type === "Family";
@@ -66,20 +85,28 @@ export default function QuoteFormFields({ initialValues, onSubmit, submitLabel =
 
   function update(field, value) {
     setForm((f) => ({ ...f, [field]: value }));
+    // Clear the error for this field as the user types
+    if (errors[field]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     const clientErrors = validate(form);
     setErrors(clientErrors);
-    if (clientErrors.length > 0) return;
+    if (Object.keys(clientErrors).length > 0) return;
 
     setSubmitting(true);
     try {
       await onSubmit(form);
     } catch (err) {
-      // Backend validation failure (defence in depth)
-      setErrors(err.details && err.details.length ? err.details : [err.message]);
+      // Backend validation failure (defence in depth) – show as a general error
+      setErrors({ _general: err.details && err.details.length ? err.details.join(" ") : err.message });
     } finally {
       setSubmitting(false);
     }
@@ -87,14 +114,9 @@ export default function QuoteFormFields({ initialValues, onSubmit, submitLabel =
 
   return (
     <form className="quote-form" onSubmit={handleSubmit} noValidate>
-      {errors.length > 0 && (
+      {errors._general && (
         <div className="error-box">
-          <strong>Please fix the following:</strong>
-          <ul>
-            {errors.map((msg, i) => (
-              <li key={i}>{msg}</li>
-            ))}
-          </ul>
+          <strong>{errors._general}</strong>
         </div>
       )}
 
@@ -104,10 +126,12 @@ export default function QuoteFormFields({ initialValues, onSubmit, submitLabel =
           Customer name
           <input
             type="text"
+            className={errors.customer_name ? "input-error" : ""}
             value={form.customer_name}
             onChange={(e) => update("customer_name", e.target.value)}
             required
           />
+          <FieldError message={errors.customer_name} />
         </label>
 
         <label>
@@ -131,14 +155,17 @@ export default function QuoteFormFields({ initialValues, onSubmit, submitLabel =
             type="number"
             min="18"
             max="100"
+            className={errors.applicant1_age ? "input-error" : ""}
             value={form.applicant1_age}
             onChange={(e) => update("applicant1_age", e.target.value)}
             required
           />
+          <FieldError message={errors.applicant1_age} />
         </label>
         <label>
           Hospital cover history
           <select
+            className={errors.applicant1_cover_history ? "input-error" : ""}
             value={form.applicant1_cover_history}
             onChange={(e) => update("applicant1_cover_history", e.target.value)}
           >
@@ -149,6 +176,7 @@ export default function QuoteFormFields({ initialValues, onSubmit, submitLabel =
               </option>
             ))}
           </select>
+          <FieldError message={errors.applicant1_cover_history} />
         </label>
       </fieldset>
 
@@ -162,14 +190,17 @@ export default function QuoteFormFields({ initialValues, onSubmit, submitLabel =
               type="number"
               min="18"
               max="100"
+              className={errors.applicant2_age ? "input-error" : ""}
               value={form.applicant2_age}
               onChange={(e) => update("applicant2_age", e.target.value)}
               required
             />
+            <FieldError message={errors.applicant2_age} />
           </label>
           <label>
             Hospital cover history
             <select
+              className={errors.applicant2_cover_history ? "input-error" : ""}
               value={form.applicant2_cover_history}
               onChange={(e) => update("applicant2_cover_history", e.target.value)}
             >
@@ -180,38 +211,57 @@ export default function QuoteFormFields({ initialValues, onSubmit, submitLabel =
                 </option>
               ))}
             </select>
+            <FieldError message={errors.applicant2_cover_history} />
           </label>
         </fieldset>
       )}
 
       <fieldset>
         <legend>Cover selection</legend>
-        <label>
-          Hospital cover level
-          <select
-            value={form.hospital_cover}
-            onChange={(e) => update("hospital_cover", e.target.value)}
-          >
+
+        <div className="cover-picker-group">
+          <span className="cover-picker-label">Hospital cover level</span>
+          <div className="cover-picker">
             {HOSPITAL_OPTIONS.map((o) => (
-              <option key={o} value={o}>
-                {o}
-              </option>
+              <label
+                key={o}
+                className={`cover-card${form.hospital_cover === o ? " selected" : ""}`}
+              >
+                <input
+                  type="radio"
+                  name="hospital_cover"
+                  value={o}
+                  checked={form.hospital_cover === o}
+                  onChange={(e) => update("hospital_cover", e.target.value)}
+                />
+                <span className="cover-card-name">{o}</span>
+                <span className="cover-card-price">{formatPrice(HOSPITAL_PRICES[o])}</span>
+              </label>
             ))}
-          </select>
-        </label>
-        <label>
-          Extras cover level
-          <select
-            value={form.extras_cover}
-            onChange={(e) => update("extras_cover", e.target.value)}
-          >
+          </div>
+        </div>
+
+        <div className="cover-picker-group">
+          <span className="cover-picker-label">Extras cover level</span>
+          <div className="cover-picker">
             {EXTRAS_OPTIONS.map((o) => (
-              <option key={o} value={o}>
-                {o}
-              </option>
+              <label
+                key={o}
+                className={`cover-card${form.extras_cover === o ? " selected" : ""}`}
+              >
+                <input
+                  type="radio"
+                  name="extras_cover"
+                  value={o}
+                  checked={form.extras_cover === o}
+                  onChange={(e) => update("extras_cover", e.target.value)}
+                />
+                <span className="cover-card-name">{o}</span>
+                <span className="cover-card-price">{formatPrice(EXTRAS_PRICES[o])}</span>
+              </label>
             ))}
-          </select>
-        </label>
+          </div>
+        </div>
       </fieldset>
 
       <fieldset>
@@ -236,10 +286,12 @@ export default function QuoteFormFields({ initialValues, onSubmit, submitLabel =
               min="0"
               max="10"
               step="0.1"
+              className={errors.annual_discount ? "input-error" : ""}
               value={form.annual_discount}
               onChange={(e) => update("annual_discount", e.target.value)}
               required
             />
+            <FieldError message={errors.annual_discount} />
           </label>
         )}
       </fieldset>

@@ -1,4 +1,6 @@
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
@@ -11,13 +13,19 @@ body {
   background: #0f4c81;
   color: white;
   padding: 1rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
+
 .app-header .brand {
   color: white;
   font-size: 1.4rem;
   font-weight: 700;
   text-decoration: none;
 }
+
 .app-header .tagline {
   margin: 0.25rem 0 0;
   font-size: 0.85rem;
@@ -37,7 +45,8 @@ main {
   margin-bottom: 1rem;
 }
 
-.button-link, button {
+.button-link,
+button {
   background: #0f4c81;
   color: white;
   border: none;
@@ -48,26 +57,56 @@ main {
   font-size: 0.95rem;
   display: inline-block;
 }
-.button-link:hover, button:hover { background: #0c3c66; }
-button.danger { background: #b3261e; }
-button.danger:hover { background: #8f1e18; }
-.button-row { display: flex; gap: 0.5rem; }
 
-.quote-table, .breakdown-table {
+.button-link:hover,
+button:hover {
+  background: #0c3c66;
+}
+
+button.danger {
+  background: #b3261e;
+}
+
+button.danger:hover {
+  background: #8f1e18;
+}
+
+.button-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.quote-table,
+.breakdown-table {
   width: 100%;
   border-collapse: collapse;
   background: white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
-.quote-table th, .quote-table td,
-.breakdown-table th, .breakdown-table td {
+
+.quote-table th,
+.quote-table td,
+.breakdown-table th,
+.breakdown-table td {
   padding: 0.6rem 0.8rem;
   text-align: left;
   border-bottom: 1px solid #e2e6ea;
 }
-.quote-table thead { background: #eef2f6; }
-.breakdown-table th { width: 45%; color: #444; font-weight: 600; }
-.breakdown-table tr.highlight { background: #eaf3ea; font-weight: 700; }
+
+.quote-table thead {
+  background: #eef2f6;
+}
+
+.breakdown-table th {
+  width: 45%;
+  color: #444;
+  font-weight: 600;
+}
+
+.breakdown-table tr.highlight {
+  background: #eaf3ea;
+  font-weight: 700;
+}
 
 .quote-form fieldset {
   background: white;
@@ -76,14 +115,23 @@ button.danger:hover { background: #8f1e18; }
   margin-bottom: 1rem;
   padding: 1rem;
 }
-.quote-form legend { font-weight: 700; padding: 0 0.4rem; }
+
+.quote-form legend {
+  font-weight: 700;
+  font-size: 1.15rem;
+  padding: 0 0.4rem;
+}
+
 .quote-form label {
   display: block;
   margin-bottom: 0.75rem;
   font-size: 0.9rem;
   color: #333;
 }
-.quote-form input, .quote-form select, .quote-form textarea {
+
+.quote-form input,
+.quote-form select,
+.quote-form textarea {
   display: block;
   width: 100%;
   margin-top: 0.25rem;
@@ -91,6 +139,20 @@ button.danger:hover { background: #8f1e18; }
   border: 1px solid #ccd3d9;
   border-radius: 6px;
   font-size: 0.95rem;
+}
+
+.quote-form input.input-error,
+.quote-form select.input-error {
+  border-color: #d93025;
+  background: #fef7f6;
+}
+
+.field-error {
+  display: block;
+  color: #d93025;
+  font-size: 0.82rem;
+  margin-top: 0.3rem;
+  font-weight: 500;
 }
 
 .error-box {
@@ -101,7 +163,11 @@ button.danger:hover { background: #8f1e18; }
   border-radius: 6px;
   margin-bottom: 1rem;
 }
-.error-box ul { margin: 0.4rem 0 0; padding-left: 1.2rem; }
+
+.error-box ul {
+  margin: 0.4rem 0 0;
+  padding-left: 1.2rem;
+}
 
 .warning-box {
   background: #fff6e0;
@@ -112,7 +178,10 @@ button.danger:hover { background: #8f1e18; }
   margin-bottom: 1rem;
 }
 
-.explanation-sheet { margin-top: 1rem; }
+.explanation-sheet {
+  margin-top: 1rem;
+}
+
 .lhc-statement {
   font-style: italic;
   margin-top: 1rem;
@@ -120,6 +189,97 @@ button.danger:hover { background: #8f1e18; }
   background: #eef2f6;
   border-radius: 6px;
 }
-.plain-english { color: #333; line-height: 1.5; }
-.meta { color: #555; }
-.notes { background: white; padding: 0.6rem 0.8rem; border-radius: 6px; }
+
+.plain-english {
+  color: #333;
+  line-height: 1.5;
+}
+
+.meta {
+  color: #555;
+}
+
+.notes {
+  background: white;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+}
+
+/* ── Cover-picker radio cards ─────────────────────────────────── */
+.cover-picker-group {
+  margin-bottom: 1rem;
+}
+
+.cover-picker-group:last-child {
+  margin-bottom: 0;
+}
+
+.cover-picker-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.cover-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+
+.quote-form .cover-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 0.6rem;
+  border: 2px solid #dde3e8;
+  border-radius: 8px;
+  background: #fafbfc;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.quote-form .cover-card:hover {
+  border-color: #8bb3d6;
+  background: #f0f5fa;
+}
+
+.quote-form .cover-card.selected {
+  border-color: #0f4c81;
+  background: #e8f0f8;
+  box-shadow: 0 0 0 3px rgba(15, 76, 129, 0.15);
+}
+
+.cover-card input[type="radio"] {
+  /* visually hidden but still accessible */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
+}
+
+.cover-card-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #1a1f27;
+}
+
+.cover-card-price {
+  font-size: 0.95rem;
+  color: #557;
+  letter-spacing: 0.02em;
+}
+
+.quote-form .cover-card.selected .cover-card-price {
+  color: #0f4c81;
+  font-weight: 600;
+}
