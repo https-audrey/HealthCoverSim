@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api";
+import { useUser } from "../UserContext";
 
 export default function QuoteList() {
+  const { userName } = useUser();
   const [quotes, setQuotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,7 +16,7 @@ export default function QuoteList() {
   function load() {
     setLoading(true);
     api
-      .list()
+      .list(userName)
       .then(setQuotes)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
@@ -26,7 +28,7 @@ export default function QuoteList() {
   return (
     <div>
       <div className="page-header">
-        <h2>Quotes</h2>
+        <h2>Your Quotes</h2>
         <Link to="/new" className="button-link">
           + New Quote
         </Link>

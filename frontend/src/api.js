@@ -14,7 +14,12 @@ async function handle(res) {
 }
 
 export const api = {
-  list: () => fetch(BASE).then(handle),
+  list: (customerName) => {
+    const url = customerName
+      ? `${BASE}?customer_name=${encodeURIComponent(customerName)}`
+      : BASE;
+    return fetch(url).then(handle);
+  },
   get: (id) => fetch(`${BASE}/${id}`).then(handle),
   create: (payload) =>
     fetch(BASE, {

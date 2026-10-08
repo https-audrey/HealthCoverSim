@@ -27,8 +27,24 @@ function normaliseInput(body) {
   };
 }
 
-// GET /api/quotes - list all quotes (id + summary fields only)
+// GET /api/quotes - list quotes (id + summary fields only)
+// Supports optional ?customer_name= filter so each user only sees their own quotes.
 router.get("/", (req, res) => {
+  const { customer_name } = req.query;
+
+  if (customer_name) {
+    const rows = db
+      .prepare(
+        `SELECT id, customer_name, cover_type, hospital_cover, extras_cover,
+                payment_frequency, created_at
+         FROM quotes
+         WHERE LOWER(customer_name) = LOWER(?)
+         ORDER BY created_at DESC, id DESC`
+      )
+      .all(customer_name);
+    return res.json(rows);
+  }
+
   const rows = db
     .prepare(
       `SELECT id, customer_name, cover_type, hospital_cover, extras_cover,
